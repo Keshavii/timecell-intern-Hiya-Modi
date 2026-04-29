@@ -98,7 +98,10 @@ pytest -v
 ## 🤖 Task 03 — AI-Powered Portfolio Explainer (30 pts)
 
 ### Approach
-*[To be filled after implementation]*
+- Built a robust `ClaudeClient` wrapper around the Anthropic API (`claude-3-5-sonnet-20241022`).
+- Wrote a custom heuristic JSON parser (`output_parser.py`) to safely extract data even when the LLM outputs conversational filler or markdown blocks.
+- Added a **Self-Critique Bonus**: a second LLM call (`critic.py`) acting as a Senior Auditor that reviews the first LLM's advice for mathematical accuracy and actionability.
+- Parameterized the tone using system prompt modifiers (`beginner`, `experienced`, `expert`).
 
 ### Why Claude?
 Timecell's own platform is powered by Claude. Choosing Anthropic Claude as the LLM provider demonstrates alignment with the company's technical stack and philosophy.
@@ -107,10 +110,11 @@ Timecell's own platform is powered by Claude. Choosing Anthropic Claude as the L
 See [docs/PROMPT_ENGINEERING.md](docs/PROMPT_ENGINEERING.md) for the full prompt evolution — from v1 to final version, with before/after comparisons.
 
 ### What Worked, What Didn't
-*[To be filled — document prompt iterations]*
+- **What didn't work**: In Version 1, simply asking for the JSON format resulted in the LLM giving generic advice like "diversify your assets" instead of actually doing the math on the crash percentages.
+- **What worked**: Explicitly forbidding hallucination and demanding the LLM reference the numbers in the provided data (`format_portfolio_for_prompt`). Adding the heuristic parser to strip ```json blocks was also necessary, as LLMs frequently ignore "do not use markdown" instructions.
 
 ### Sample Outputs
-*[To be filled — show outputs for different portfolio types]*
+Running the explainer on a 100% Crypto portfolio yields an "Aggressive" verdict, with the LLM specifically warning that a -80% crash on BTC will obliterate the 1 Crore total value, leaving an unsustainable runway. The self-critique engine successfully verified this logic.
 
 ---
 
