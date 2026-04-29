@@ -77,7 +77,10 @@ pytest -v
 ## 📡 Task 02 — Live Market Data Fetch (20 pts)
 
 ### Approach
-*[To be filled after implementation]*
+- **Provider Pattern**: Created an Abstract Base Class (`DataProvider`) to enforce a standard contract (`fetch_price -> AssetPrice`).
+- **Concrete Providers**: Implemented `YFinanceProvider` and `CoinGeckoProvider` to handle API-specific logic and standardize the output formatting.
+- **Resilient Orchestrator**: The main `fetch_all_prices` function uses a loop with **exponential backoff** (retrying 1s, then 2s) and guarantees the script will never crash, even if the internet goes down.
+- **Beautiful UI**: Used `rich` to render a clean terminal table that gracefully displays failed APIs inline rather than breaking the output.
 
 ### API Choices and Why
 | Asset | Provider | Why |
