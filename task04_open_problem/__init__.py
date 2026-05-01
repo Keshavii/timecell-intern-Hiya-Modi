@@ -1,5 +1,6 @@
-"""Task 04 — Portfolio Stress Test Simulator (Open Problem).
+"""Task 04 — AI CIO Investment Committee Memo (Open Problem).
 
-Simulates portfolio performance during historical market crashes
-and provides AI-generated insights on crash resilience.
+Simulates portfolio stochastic ruin, performs conservative rebalancing,
+re-simulates to prove risk reduction, and outputs an AI-generated
+Investment Committee Memo using Gemini.
 """

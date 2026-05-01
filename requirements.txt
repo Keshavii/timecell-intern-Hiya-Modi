@@ -12,9 +12,9 @@ yfinance>=0.2.36
 requests>=2.31.0
 
 # Task 03 — AI-Powered Portfolio Explainer
-anthropic>=0.39.0
+# anthropic>=0.39.0       # Replaced by Gemini
 # openai>=1.50.0          # Uncomment if using OpenAI instead
-# google-generativeai>=0.8.0  # Uncomment if using Gemini instead
+google-generativeai>=0.8.0  # Used for Gemini API
 
 # Terminal UI — beautiful output across all tasks
 rich>=13.7.0

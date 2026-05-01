@@ -123,3 +123,37 @@ def test_multi_scenario(standard_portfolio):
     
     # Runway should be longer in moderate scenario
     assert multi["moderate_case"]["runway_months"] > multi["worst_case"]["runway_months"]
+
+def test_allocations_not_summing_to_100():
+    """Test that the calculator handles portfolios where allocations don't sum to 100%."""
+    p = {
+        "total_value_inr": 1_000_000,
+        "monthly_expenses_inr": 50_000,
+        "assets": [
+            {"name": "BTC", "allocation_pct": 20, "expected_crash_pct": -80},
+            {"name": "CASH", "allocation_pct": 30, "expected_crash_pct": 0},
+        ]
+    }
+    metrics = compute_risk_metrics(p)
+    # BTC: 200k * 0.2 = 40k; CASH: 300k * 1.0 = 300k => 340k post-crash
+    assert pytest.approx(metrics["post_crash_value"]) == 340_000
+    assert metrics["runway_months"] == pytest.approx(6.8)
+    assert metrics["ruin_test"] == "FAIL"  # 6.8 < 12
+
+def test_single_asset_portfolio():
+    """Test a portfolio with only one asset."""
+    p = {
+        "total_value_inr": 5_000_000,
+        "monthly_expenses_inr": 100_000,
+        "assets": [
+            {"name": "NIFTY50", "allocation_pct": 100, "expected_crash_pct": -40},
+        ]
+    }
+    metrics = compute_risk_metrics(p)
+    # 5M * 0.6 = 3M post-crash
+    assert pytest.approx(metrics["post_crash_value"]) == 3_000_000
+    assert metrics["runway_months"] == pytest.approx(30.0)
+    assert metrics["ruin_test"] == "PASS"
+    assert metrics["largest_risk_asset"] == "NIFTY50"
+    assert metrics["concentration_warning"] is True
+

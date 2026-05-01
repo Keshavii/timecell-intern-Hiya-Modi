@@ -17,12 +17,16 @@ def fetch_all_prices() -> List[AssetPrice]:
     NEVER crashes the whole process if a single API fails.
     """
     # Configuration: What to fetch and from where
+    # Reuse provider instances to avoid redundant object creation
+    cg = CoinGeckoProvider()
+    yf = YFinanceProvider()
+
     assets_to_fetch = [
-        {"symbol": "bitcoin", "provider": CoinGeckoProvider()},
-        {"symbol": "ethereum", "provider": CoinGeckoProvider()},
-        {"symbol": "^NSEI", "provider": YFinanceProvider()},       # NIFTY 50 (Indian Index)
-        {"symbol": "RELIANCE.NS", "provider": YFinanceProvider()}, # Reliance (Indian Equity)
-        {"symbol": "GC=F", "provider": YFinanceProvider()},        # Gold Futures
+        {"symbol": "bitcoin", "provider": cg},
+        {"symbol": "ethereum", "provider": cg},
+        {"symbol": "^NSEI", "provider": yf},       # NIFTY 50 (Indian Index)
+        {"symbol": "RELIANCE.NS", "provider": yf}, # Reliance (Indian Equity)
+        {"symbol": "GC=F", "provider": yf},        # Gold Futures
     ]
     
     results = []

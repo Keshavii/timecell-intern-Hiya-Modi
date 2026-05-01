@@ -4,42 +4,54 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-class ClaudeClient:
+class LLMClient:
     """
-    A robust wrapper for the Anthropic Claude API.
-    Handles authentication, error logging, and standardizing calls.
+    A robust wrapper for the Google Gemini API.
+    Handles authentication, error logging, and standardizing LLM calls.
     """
     def __init__(self, api_key: Optional[str] = None):
-        import anthropic
+        import google.generativeai as genai
         
-        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+        self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError(
-                "ANTHROPIC_API_KEY not found. "
+                "GOOGLE_API_KEY not found. "
                 "Please set it in your .env file or export it in your terminal."
             )
             
-        self.client = anthropic.Anthropic(api_key=self.api_key)
-        # Using the recommended model for general reasoning and coding tasks
-        self.model = "claude-3-5-sonnet-20241022"
+        genai.configure(api_key=self.api_key)
+        # Use gemini-2.5-flash for free, fast, and high-quality responses
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         
-    def generate_response(self, system_prompt: str, user_message: str, max_tokens: int = 1000) -> str:
+    def generate_response(self, system_prompt: str, user_message: str, max_tokens: int = 4096) -> str:
         """
-        Sends a synchronous request to Claude and returns the text response.
+        Sends a synchronous request to Gemini and returns the text response.
         """
         try:
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=max_tokens,
-                temperature=0.4, # Low temperature for more deterministic, analytical responses
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": user_message}
-                ]
+            # Gemini handles system prompts slightly differently, so we combine them for simplicity 
+            # if we are not explicitly using the SystemInstruction feature. 
+            # For best results with gemini-1.5-flash, we can just pass the system prompt as the first instruction.
+            combined_prompt = f"{system_prompt}\n\n---\n\n{user_message}"
+            
+            response = self.model.generate_content(
+                combined_prompt,
+                generation_config=import_genai().GenerationConfig(
+                    max_output_tokens=max_tokens,
+                    temperature=0.4,
+                ),
+                safety_settings={
+                    'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
+                    'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
+                    'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
+                    'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE'
+                }
             )
-            # Claude returns a list of content blocks
-            return response.content[0].text
+            return response.text
             
         except Exception as e:
-            logger.error(f"Error communicating with Anthropic API: {e}")
+            logger.error(f"Error communicating with Google Gemini API: {e}")
             raise
+
+def import_genai():
+    import google.generativeai as genai
+    return genai

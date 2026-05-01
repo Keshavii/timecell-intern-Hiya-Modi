@@ -17,6 +17,9 @@ class YFinanceProvider(DataProvider):
             # faster and less prone to rate-limiting or blocking.
             price = ticker.fast_info['last_price']
             
+            if price is None:
+                raise ValueError(f"No price data available for {asset_symbol} (may be delisted or invalid).")
+            
             # Map ticker symbols to clean names and appropriate currencies
             currency = "USD"
             name = asset_symbol

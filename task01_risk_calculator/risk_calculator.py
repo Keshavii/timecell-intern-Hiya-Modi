@@ -79,19 +79,94 @@ def compute_risk_metrics(portfolio_dict: Dict[str, Any]) -> Dict[str, Any]:
         "concentration_warning": concentration_warning
     }
 
+def _format_inr(value: float) -> str:
+    """Formats a number into Indian Rupee display (Crores/Lakhs)."""
+    if value == float('inf'):
+        return "∞"
+    if value >= 1_00_00_000:
+        return f"₹{value / 1_00_00_000:,.2f} Cr"
+    elif value >= 1_00_000:
+        return f"₹{value / 1_00_000:,.2f} L"
+    else:
+        return f"₹{value:,.2f}"
+
+
 if __name__ == "__main__":
-    # Example usage
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich.text import Text
+    from .scenarios import compute_multi_scenario
+    from .visualizer import draw_allocation_chart
+
+    console = Console()
+
     sample_portfolio = {
-        "total_value_inr": 10_000_000, # 1 Crore INR
+        "total_value_inr": 10_000_000,  # 1 Crore INR
         "monthly_expenses_inr": 80_000,
         "assets": [
             {"name": "BTC", "allocation_pct": 30, "expected_crash_pct": -80},
-            {"name": "NIFTY50","allocation_pct": 40, "expected_crash_pct": -40},
+            {"name": "NIFTY50", "allocation_pct": 40, "expected_crash_pct": -40},
             {"name": "GOLD", "allocation_pct": 20, "expected_crash_pct": -15},
             {"name": "CASH", "allocation_pct": 10, "expected_crash_pct": 0},
         ]
     }
-    from rich import print
-    metrics = compute_risk_metrics(sample_portfolio)
-    print("[bold green]Risk Metrics Computed:[/bold green]")
-    print(metrics)
+
+    console.print("\n[bold cyan]━━━ TIMECELL PORTFOLIO RISK ANALYZER ━━━[/bold cyan]\n")
+
+    # ── Section 1: Portfolio Overview ──
+    console.print(f"  [dim]Total Value:[/dim]      {_format_inr(sample_portfolio['total_value_inr'])}")
+    console.print(f"  [dim]Monthly Expenses:[/dim] {_format_inr(sample_portfolio['monthly_expenses_inr'])}")
+    console.print()
+
+    # ── Section 2: Allocation Breakdown (Bonus: CLI Bar Chart) ──
+    draw_allocation_chart(sample_portfolio)
+
+    # ── Section 3: Multi-Scenario Risk Analysis ──
+    scenarios = compute_multi_scenario(sample_portfolio)
+    worst = scenarios["worst_case"]
+    moderate = scenarios["moderate_case"]
+
+    table = Table(title="Risk Metrics — Scenario Comparison", show_lines=True)
+    table.add_column("Metric", style="cyan bold")
+    table.add_column("Worst Case", justify="right", style="red")
+    table.add_column("Moderate Case", justify="right", style="yellow")
+
+    # Post-crash value
+    table.add_row(
+        "Post-Crash Value",
+        _format_inr(worst["post_crash_value"]),
+        _format_inr(moderate["post_crash_value"])
+    )
+
+    # Runway months
+    table.add_row(
+        "Runway (months)",
+        f"{worst['runway_months']:.1f}",
+        f"{moderate['runway_months']:.1f}"
+    )
+
+    # Ruin test
+    worst_ruin_color = "green" if worst["ruin_test"] == "PASS" else "red"
+    mod_ruin_color = "green" if moderate["ruin_test"] == "PASS" else "red"
+    table.add_row(
+        "12-Month Ruin Test",
+        f"[{worst_ruin_color}]{worst['ruin_test']}[/{worst_ruin_color}]",
+        f"[{mod_ruin_color}]{moderate['ruin_test']}[/{mod_ruin_color}]"
+    )
+
+    # Largest risk asset
+    table.add_row(
+        "Largest Risk Asset",
+        worst["largest_risk_asset"] or "—",
+        moderate["largest_risk_asset"] or "—"
+    )
+
+    # Concentration warning
+    worst_conc = "[red]⚠ YES[/red]" if worst["concentration_warning"] else "[green]✓ No[/green]"
+    mod_conc = "[red]⚠ YES[/red]" if moderate["concentration_warning"] else "[green]✓ No[/green]"
+    table.add_row("Concentration Warning", worst_conc, mod_conc)
+
+    console.print()
+    console.print(Panel(table, expand=False, border_style="blue"))
+    console.print()

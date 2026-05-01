@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from .llm_client import ClaudeClient
+from .llm_client import LLMClient
 
 CRITIC_SYSTEM_PROMPT = """You are a senior Wealth Management Auditor. 
 Your job is to critically review the advice given by another advisor.
@@ -14,7 +14,7 @@ Review the advice for:
 
 Provide a 3-4 sentence critique. Do not rewrite the advice, just critique it."""
 
-def critique_explanation(client: ClaudeClient, portfolio: Dict[str, Any], explanation: Dict[str, Any]) -> str:
+def critique_explanation(client: LLMClient, portfolio: Dict[str, Any], explanation: Dict[str, Any]) -> str:
     """
     Uses the LLM to critique its own previous output (Bonus feature).
     """
@@ -29,5 +29,5 @@ def critique_explanation(client: ClaudeClient, portfolio: Dict[str, Any], explan
     return client.generate_response(
         system_prompt=CRITIC_SYSTEM_PROMPT,
         user_message=user_message,
-        max_tokens=400
+        max_tokens=2048
     )
