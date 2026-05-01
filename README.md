@@ -1,5 +1,4 @@
 # Timecell AI Internship — Technical Assessment
-### Hiya's Submission
 
 > An AI-powered wealth management toolkit that mirrors Timecell's core philosophy: **act like a private Chief Investment Officer**, not a dashboard. Portfolio risk analysis, live market data, AI-driven explanations, and a creative open problem — built for [Timecell.ai](https://timecell.ai).
 
