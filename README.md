@@ -65,7 +65,7 @@ pytest -v
 
 ---
 
-## 📊 Task 01 — Portfolio Risk Calculator (30 pts)
+## 📊 Task 01 — Portfolio Risk Calculator
 
 ### The Problem
 Given a portfolio of assets, compute key risk metrics that a wealth manager would use to assess whether the portfolio is safe.
@@ -95,7 +95,7 @@ Timecell runs inside Claude Code — a terminal, not a dashboard. My CLI bar cha
 
 ---
 
-## 📡 Task 02 — Live Market Data Fetch (20 pts)
+## 📡 Task 02 — Live Market Data Fetch
 
 ### The Problem
 Build a resilient data fetcher that pulls real-time asset prices from multiple APIs without ever crashing.
@@ -126,7 +126,7 @@ Timecell connects to live market data as a core product feature. Demonstrating t
 
 ---
 
-## 🤖 Task 03 — AI-Powered Portfolio Explainer (30 pts)
+## 🤖 Task 03 — AI-Powered Portfolio Explainer
 
 ### The Problem
 Use an LLM to generate a plain-English explanation of a portfolio's risk — in the tone of a friendly but honest financial advisor talking to a non-expert client.
@@ -167,7 +167,7 @@ See [docs/PROMPT_ENGINEERING.md](docs/PROMPT_ENGINEERING.md) for the full evolut
 
 ---
 
-## 🧪 Task 04 — AI CIO Investment Committee Memo (20 pts)
+## 🧪 Task 04 — AI CIO Investment Committee Memo
 
 ### Why I Built This
 Task 04 had no specification — *that was the point.* I read the Timecell website, the assessment brief, and Sandeep's note at the bottom: *"The first engineering hire at a startup does not wait to be told what to build."*
