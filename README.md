@@ -245,20 +245,18 @@ My AI workflow followed a deliberate 4-step cycle: **Think → Prompt → Refine
 
 ---
 
-## 💡 Reflections
+## 💡 Reflections: The Hardest Parts & How I Approached Them
 
-### Hardest Part & How I Approached It
-The hardest part was Task 03's prompt engineering — getting the LLM to consistently produce structured, mathematically grounded advice instead of generic platitudes. My first two prompt versions failed: V1 gave textbook advice like "diversify your portfolio," and V2 hallucinated numbers that weren't in the input data. The breakthrough came from two insights: (1) pre-formatting the portfolio data as human-readable text with ₹ symbols and clear labels instead of dumping raw JSON, which dramatically improved the LLM's mathematical reasoning, and (2) building a defensive JSON parser (`output_parser.py`) because LLMs reliably ignore "don't use markdown" instructions. Engineering around the LLM's weaknesses turned out to be more valuable than trying to prompt them away.
+### 1. Product Sense > Just Writing Code (Task 04)
+The hardest part was figuring out what Task 04 should actually be. My first instinct was a standard Monte Carlo stress tester — solid math, nice output, done. But after reading Timecell's product philosophy more carefully, I realized the Monte Carlo alone didn't answer the real question: "does this person understand what we're building?" Timecell isn't a calculator — it's a CIO that asks hard questions before giving advice.
 
-The Monte Carlo simulator (Task 04) was also challenging — getting the vectorized numpy operations right so that 10,000 × 360 months of simulation runs in under a second required careful thinking about matrix shapes and broadcasting.
+So, I scrapped the generic approach and rebuilt Task 04 as an interactive CIO Interview pipeline that captures a client's goals and failure definitions before running the simulations. It then feeds that human context into Gemini to produce hyper-personalized advice. Deciding what not to build, and focusing purely on what would actually matter to a wealth manager using this tool, took more effort than writing the code.
 
-### Why This Project Aligns with Timecell's Vision
-Every design decision was informed by what I understand Timecell is building:
+### 2. Defensive Engineering: Taming the LLM (Task 03)
+On the strictly technical side, getting the LLM to consistently produce structured, mathematically grounded advice instead of generic platitudes was a massive challenge. When the LLM repeatedly ignored "do not use markdown" instructions for JSON outputs, I realized trying to "prompt away" its weaknesses was a losing battle. Instead, I took a defensive engineering approach and built a heuristic parser (`output_parser.py`) designed to automatically strip markdown and extract the JSON payload. Engineering around the AI's flaws proved far more reliable than hoping it would behave.
 
-- **Terminal-first UX** — Sandeep's note says Timecell runs inside Claude Code, not a dashboard. All four tasks produce beautiful terminal output using `rich`.
-- **AI as CIO, not chatbot** — Task 04's interview + memo pipeline mirrors Timecell's core value proposition: asking hard qualifying questions before giving personalized advice.
-- **Indian financial context** — Every output uses ₹, Crores, Lakhs, NIFTY references. Not generic USD formatting.
-- **Resilience over perfection** — Task 02's data fetcher never crashes. Task 03's parser handles LLM formatting errors. These are production engineering habits.
+### 3. High-Performance Stochastic Math
+Finally, ensuring the Monte Carlo engine could simulate 3,600,000 individual market shocks in a fraction of a second without ruining the terminal UX was a fun challenge. It required catching a subtle but critical math error — the monthly volatility conversion must use `σ/√12`, not `σ/12` — and strictly utilizing numpy vectorization and matrix broadcasting to ensure the simulation executes in under 0.2 seconds.
 
 ---
 
